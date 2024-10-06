@@ -40,10 +40,6 @@ def get_random_path():
         connected_nodes = graph[curr_node][1]
         next_node = random.choice(connected_nodes)
         #add it to the random path list
-        if next_node == exit_node:
-            #if it is trying to go back to start then skip iteration
-            # or if it tries to get to the exit node before it reaches the target node
-            continue
         random_path.append(next_node)
         curr_node = next_node
     
