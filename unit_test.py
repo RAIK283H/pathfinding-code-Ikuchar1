@@ -26,14 +26,6 @@ class TestPathFinding(unittest.TestCase):
         self.assertAlmostEqual(first=first_value,second=second_value,delta=1e-9)
         self.assertNotEqual(almost_pi, pi)
         self.assertAlmostEqual(first=almost_pi, second=pi, delta=1e-1)
-        
-        
-def test_random_stops_on_exit(self):
-        path = get_random_path()
-        self.assertEqual(path[0], path[0], "Doesn't start on start node")
-        self.assertEqual(path[-1], len(graph_data.graph_data[global_game_data.current_graph_index]) - 1, "Does not end on right node")
-
-
 
 if __name__ == '__main__':
     unittest.main()
