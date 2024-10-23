@@ -1,3 +1,5 @@
+import random
+from player_object import Player
 import pyglet
 import config_data
 import global_game_data
@@ -5,8 +7,6 @@ import pathing
 from graph_data import graph_data
 from scoreboard import Scoreboard
 from graph import Graph
-from player_object import Player
-import random
 
 # Create Viewing Window
 window = pyglet.window.Window(width=config_data.window_width, height=config_data.window_height,

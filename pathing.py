@@ -1,6 +1,9 @@
+from collections import deque
+from numpy import random
 import graph_data
 import global_game_data
-from numpy import random
+
+
 
 def set_current_graph_paths():
     global_game_data.graph_paths.clear()
@@ -12,7 +15,7 @@ def set_current_graph_paths():
 
 
 def get_test_path():
-    return graph_data.test_path[global_game_data.current_graph_index]
+    return [0] + graph_data.test_path[global_game_data.current_graph_index]
 
 
 def get_random_path():
@@ -67,11 +70,135 @@ def get_random_path():
 
 
 def get_dfs_path():
-    return [1,2]
+    #get graph
+    graph_index = global_game_data.current_graph_index
+    graph = graph_data.graph_data[graph_index]
+    
+    #set up main nodes
+    start_node = 0
+    target_node = global_game_data.target_node[graph_index]
+    exit_node = len(graph) - 1
+    
+    #pre condition
+    #make sure start, target, and exit node are actually in the graph
+    assert (start_node in range(len(graph))) and (target_node in range(len(graph))) and (exit_node in range(len(graph))), "Missing vital node in graph"
+    
+    #get path from start to target
+    start_to_target_path = dfs(graph, start_node, target_node)
+    #make sure it has start and target node in path
+    assert (start_node in start_to_target_path) and (target_node in start_to_target_path), "Did not go from start to target"
+    
+    #get path from target to end
+    target_to_end_path = dfs(graph, target_node, exit_node)
+    #make sure it has target and exit node in path
+    assert (target_node in target_to_end_path) and (exit_node in target_to_end_path), "Did not go from target to exit"
+    
+    #combine the two paths
+    #targetToEndPath starts at 2nd element since it started at target and the first path ended in target
+    full_path = start_to_target_path + target_to_end_path[1:]
+
+    #post conditions
+    assert target_node in full_path, "Path does not go thru target node"
+    assert exit_node == full_path[-1], "Path does not end at exit node"
+    for i in range(len(full_path) - 1):
+        assert full_path[i + 1] in graph[full_path[i]][1], "Not neighbors!"
+    
+    return full_path
+
+#Helper function to get path for dfs
+def dfs(graph, start, end):
+    #stack has node and list of nodes in the path so far
+    stack = [(start, [start])]
+    visited = set()
+    
+    while stack:
+        #get node and current path list from stack
+        node, path = stack.pop()
+        
+        if node == end:
+            #we are at the target
+            return path
+        
+        if node not in visited:
+            #add it to the nodes we are visiting
+            visited.add(node)
+            
+            #run dfs on all of the neigbors by adding them to stack
+            neighbors = graph[node][1]
+            for neighbor in neighbors:
+                if neighbor not in visited:
+                    stack.append((neighbor, path + [neighbor]))
+                    
+    #returns blank list if we can't find path
+    return []
+        
 
 
 def get_bfs_path():
-    return [1,2]
+    #get graph
+    graph_index = global_game_data.current_graph_index
+    graph = graph_data.graph_data[graph_index]
+    
+    #set up main nodes
+    start_node = 0
+    target_node = global_game_data.target_node[graph_index]
+    exit_node = len(graph) - 1
+    
+    #pre condition
+    #make sure start, target, and exit node are actually in the graph
+    assert (start_node in range(len(graph))) and (target_node in range(len(graph))) and (exit_node in range(len(graph))), "Missing vital node in graph"
+    
+    #get path from start to target
+    start_to_target_path = bfs(graph, start_node, target_node)
+    #make sure it has start and target node in path
+    assert (start_node in start_to_target_path) and (target_node in start_to_target_path), "Did not go from start to target"
+    
+    #get path from target to end
+    target_to_end_path = bfs(graph, target_node, exit_node)
+    #make sure it has target and exit node in path
+    assert (target_node in target_to_end_path) and (exit_node in target_to_end_path), "Did not go from target to exit"
+    
+    #combine the two paths
+    #targetToEndPath starts at 2nd element since it started at target and the first path ended in target
+    full_path = start_to_target_path + target_to_end_path[1:]
+    
+    #post conditions
+    assert target_node in full_path, "Path does not go thru target node"
+    assert exit_node == full_path[-1], "Path does not end at exit node"
+    for i in range(len(full_path) - 1):
+        assert full_path[i + 1] in graph[full_path[i]][1]
+    
+    return full_path
+
+#Helper for bfs function
+def bfs(graph, start, end):
+    #set up queue and other lists
+    #queue = Queue()
+    #queue.put(start)
+    queue = deque([start])
+    visited = set([start])
+    #path is dict, points from node to the path that it took
+    path = {start: [start]}
+    
+    while  queue:
+        node = queue.popleft()
+        
+        if node == end:
+            #we are at the target
+            return path[node]
+                   
+        #add all neigbors to the queue
+        for neighbor in sorted(graph[node][1]):
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+                #update the path that we took
+                path[neighbor] = path[node] + [neighbor]
+                    
+    #returns blank if we can't get path
+    return []
+
+    
 
 
 def get_dijkstra_path():

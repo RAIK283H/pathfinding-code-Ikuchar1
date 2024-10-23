@@ -12,6 +12,7 @@ class Scoreboard:
     player_excess_distance_display = []
     player_path_display = []
     player_nodes_visited_display = []
+    winning_player_display = []
 
     def __init__(self, batch, group):
         self.batch = batch
@@ -62,11 +63,22 @@ class Scoreboard:
                                                     font_size=self.font_size, batch=batch, group=group, color=player[2][colors.TEXT_INDEX])
             self.player_nodes_visited_display.append((nodes_visited_label,player))
             
+            winner_label = pyglet.text.Label("Finding winner...",
+                                            x = 0,
+                                            y = 0,
+                                            font_name = "Arial",
+                                            font_size=self.font_size, batch=batch, group=group)
+            self.winning_player_display = (winner_label, player)
+            
 
 
     def update_elements_locations(self):
         self.distance_to_exit_label.x = config_data.window_width - self.stat_width
         self.distance_to_exit_label.y = config_data.window_height - self.stat_height
+        #display_element = self.winning_player_display[0]
+        #winner_label = self.winning_player_display[0]
+        #winner_label.x = config_data.window_width - self.stat_width
+        #winner_label.y = config_data.window_height - self.stat_height * 15
         for index, (display_element, player) in enumerate(self.player_name_display):
             display_element.x = config_data.window_width - self.stat_width
             display_element.y = config_data.window_height - self.base_height_offset - self.stat_height * 2 - self.stat_height * (index * self.number_of_stats)
@@ -82,6 +94,12 @@ class Scoreboard:
         for index, (display_element, player) in enumerate(self.player_nodes_visited_display):
             display_element.x = config_data.window_width - self.stat_width
             display_element.y = config_data.window_height - self.base_height_offset - self.stat_height * 6 - self.stat_height * (index * self.number_of_stats)
+        
+        winner_label = self.winning_player_display[0]
+        winner_label.x = config_data.window_width - self.stat_width
+        winner_label.y = config_data.window_height - self.stat_height * 24
+        
+
 
     def update_paths(self):
         for index in range(len(config_data.player_data)):
@@ -113,10 +131,43 @@ class Scoreboard:
     def update_num_nodes_visited(self):
         for index in range(len(config_data.player_data)):
             self.player_nodes_visited_display[index][0].text = self.wrap_text("# Nodes Visited: " + str(len(global_game_data.graph_paths[index])))
+            
+    def update_winner(self):
+        #looks thru all player stats and finds and displays winner
+        graph_index = global_game_data.current_graph_index
+        graph = graph_data.graph_data[graph_index]
+        targetNode = global_game_data.target_node[global_game_data.current_graph_index]
+        exitNode = len(graph) - 1
+        displayElement = self.winning_player_display[0]
+        
+        curr_shortest_dist = global_game_data.player_objects[0].distance_traveled
+        winner = config_data.player_data[0][0]
+        
+        for i, player in enumerate(global_game_data.player_objects):
+            player_dist_traveled = player.distance_traveled
+            path = global_game_data.graph_paths[i]
+            is_Target_In_Path = targetNode in path
+            is_Exit_In_Path = exitNode in path
+            
+            #update winner
+            if(is_Target_In_Path and is_Exit_In_Path and (player_dist_traveled < curr_shortest_dist)):
+                curr_shortest_dist = player_dist_traveled
+                winner = config_data.player_data[i][0]
 
+        #display the winner
+        displayElement.text = "Winner: " + str(winner)
+        
+    #helper to reset winner text to right text when there is new graph
+    def reset_winner_text(self):
+        winner_label = self.winning_player_display[0]
+        winner_label.text = "Finding winner..."
+        
     def update_scoreboard(self):
         self.update_elements_locations()
         self.update_paths()
         self.update_distance_to_exit()
         self.update_distance_traveled()
         self.update_num_nodes_visited()
+        #only update when it is on the last player.
+        if (global_game_data.current_player_index == len(global_game_data.player_objects) - 1):
+            self.update_winner()
