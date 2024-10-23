@@ -173,27 +173,24 @@ def get_bfs_path():
 #Helper for bfs function
 def bfs(graph, start, end):
     #set up queue and other lists
-    #queue = Queue()
-    #queue.put(start)
-    queue = deque([start])
-    visited = set([start])
-    #path is dict, points from node to the path that it took
-    path = {start: [start]}
+    queue = deque([(start, [start])])
+    visited = set()
     
     while  queue:
-        node = queue.popleft()
+        node, path = queue.popleft()
+        
+        if node in visited:
+            continue
+        visited.add(node)
         
         if node == end:
-            #we are at the target
-            return path[node]
+            #done
+            return path 
                    
         #add all neigbors to the queue
         for neighbor in sorted(graph[node][1]):
             if neighbor not in visited:
-                visited.add(neighbor)
-                queue.append(neighbor)
-                #update the path that we took
-                path[neighbor] = path[node] + [neighbor]
+                queue.append((neighbor, path + [neighbor]))
                     
     #returns blank if we can't get path
     return []
