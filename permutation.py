@@ -3,7 +3,7 @@ from graph_data import graph_data
 def sjt_permutations(n):
     
     #sets up elements and direction they are facing
-    elements = list(range(1, n+1))
+    elements = list(range(n))
     directions = [-1] * n #-1 is left, 1 is right
     permutations = []
     
@@ -55,13 +55,27 @@ def sjt_permutations(n):
     return permutations
 
 def hamiltonian_helper(perm, graph):
+    
+    for node in perm:
+        if node >= len(graph):
+            #print(f"Invalid node {node} in permutation {perm} (out of bounds)")
+            return False
+    
     for i in range(len(perm) - 1):
+        current_node = perm[i]
+        next_node = perm[i + 1]
         #if next one is not in current permutations neighbor list then it isn't cycle
         if perm[i + 1] not in graph[perm[i]][1]:
+            #print(f"No edge between {current_node} and {next_node} in permutation {perm}")
             return False
-        if perm[0] not in graph[perm[-1]][1]:
-            return False
+    
+    first_node = perm[0]
+    last_node = perm[-1]
+    if perm[0] not in graph[perm[-1]][1]:
+        #print(f"No edge between {last_node} and {first_node} to complete cycle in permutation {perm}")
+        return False
     #check to see if last one is connected to starting points neighbors
+    #print(f"Valid Hamiltonian cycle found: {perm}")
     return True
 
 def get_hamiltonians(permutations, graph):
@@ -72,3 +86,7 @@ def get_hamiltonians(permutations, graph):
             hamilts.append(perm)
     return hamilts
  
+if __name__ == '__main__':
+    perms = sjt_permutations(4)
+    for perm in perms:
+        print(str(perm) + ",")

@@ -10,14 +10,15 @@ Only the start and exit nodes are dead ends (all other nodes have degree >= 2)
 hamiltonianGraphs = [
     #first graph is valid while second graph isn't
     [
-        [(0, 0), [1]],
+        [(0, 0), [1, 2]],
         [(50, -100), [0, 2]],
-        [(300, -200), [1]]
+        [(300, -200), [0, 1]]
     ],
     [
         [(0, 0), [1]],
         [(50, -100), [0, 2]],
-        [(300, -200), [0]]
+        [(300, -200), [2]],
+        [(200, 50), [3]]
     ]
 ]
 
