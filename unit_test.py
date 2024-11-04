@@ -3,6 +3,7 @@ import unittest
 import graph_data
 import global_game_data
 from pathing import get_random_path, get_bfs_path, get_dfs_path, get_dijkstra_path, get_test_path
+from permutation import sjt_permutations, get_hamiltonians, hamiltonian_helper
 
 
 
@@ -213,6 +214,70 @@ class TestPathFinding(unittest.TestCase):
         self.assertEqual(path[0], 0, "The path does not start at the start node")
         self.assertIn(target_node, path, "The path does not include the target node")
         self.assertEqual(path[-1], 15, "The path does not end at the exit node")
+
+class TestPermutationsAndHamiltonian(unittest.TestCase):
+    def test_sjt_3(self):
+        expected = [
+            [1, 2, 3],
+            [1, 3, 2],
+            [3, 1, 2],
+            [3, 2, 1],
+            [2, 3, 1],
+            [2, 1, 3]
+        ]
+        result = sjt_permutations(3)
+        self.assertEqual(len(result), 6)
+        self.assertEqual(result, expected)
+        
+    def test_sjt_4(self):
+        expected = [
+            [1, 2, 3, 4],
+            [1, 2, 4, 3],
+            [1, 4, 2, 3],
+            [4, 1, 2, 3],
+            [4, 1, 3, 2],
+            [1, 4, 3, 2],
+            [1, 3, 4, 2],
+            [1, 3, 2, 4],
+            [3, 1, 2, 4],
+            [3, 1, 4, 2],
+            [3, 4, 1, 2],
+            [4, 3, 1, 2],
+            [4, 3, 2, 1],
+            [3, 4, 2, 1],
+            [3, 2, 4, 1],
+            [3, 2, 1, 4],
+            [2, 3, 1, 4],
+            [2, 3, 4, 1],
+            [2, 4, 3, 1],
+            [4, 2, 3, 1],
+            [4, 2, 1, 3],
+            [2, 4, 1, 3],
+            [2, 1, 4, 3],
+            [2, 1, 3, 4]
+        ]
+        result = sjt_permutations(4)
+        self.assertEqual(len(result), len(expected))
+        self.assertEqual(result, expected)
+               
+    def hamiltonian_cycle_test_happy(self):
+        i = 0
+        permutations = sjt_permutations(len(graph_data.hamiltonianGraphs[i]))
+        actual = get_hamiltonians(permutations, graph_data.hamiltonianGraphs[i])
+        expected = [[0, 1, 2], [2, 0, 1], [1, 2, 0]]
+        
+        self.assertEqual(actual, expected)
+        
+    def hamiltonian_cycle_test_not_happy(self):
+        i = 1
+        permutations = sjt_permutations(len(graph_data.hamiltonianGraphs[i]))
+        actual = get_hamiltonians(permutations, graph_data.hamiltonianGraphs[i])
+        expected = []
+        self.assertEqual(actual, expected)
+
+
+    
+    #checks graph for cycle
 
 if __name__ == '__main__':
     unittest.main()

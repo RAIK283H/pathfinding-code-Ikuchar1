@@ -7,7 +7,19 @@ graph_data[a][b][1] = adjacency list of point b in graph a
 
 Only the start and exit nodes are dead ends (all other nodes have degree >= 2)
 '''
-
+hamiltonianGraphs = [
+    #first graph is valid while second graph isn't
+    [
+        [(0, 0), [1]],
+        [(50, -100), [0, 2]],
+        [(300, -200), [1]]
+    ],
+    [
+        [(0, 0), [1]],
+        [(50, -100), [0, 2]],
+        [(300, -200), [0]]
+    ]
+]
 
 graph_data = [
 
