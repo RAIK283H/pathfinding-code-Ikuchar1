@@ -214,6 +214,77 @@ class TestPathFinding(unittest.TestCase):
         self.assertEqual(path[0], 0, "The path does not start at the start node")
         self.assertIn(target_node, path, "The path does not include the target node")
         self.assertEqual(path[-1], 15, "The path does not end at the exit node")
+        
+    def test_dijkstra_happy_case(self):
+        graph_index = 0
+        target_node = 4
+
+        global_game_data.current_graph_index = graph_index
+        global_game_data.target_node = {graph_index: target_node}
+
+        graph_data.graph_data = {
+            graph_index: [
+                [(0, 0), [1, 4]],
+                [(0, 100), [0, 2, 5]],
+                [(0, 200), [1, 3, 6]],
+                [(0, 300), [2, 7]],
+                [(100, 0), [5, 0, 8]],
+                [(100, 100), [4, 6, 1, 9]],
+                [(100, 200), [5, 7, 2, 10]],
+                [(100, 300), [6, 3, 11]],
+                [(200, 0), [9, 4, 12]],
+                [(200, 100), [8, 10, 5, 13]],
+                [(200, 200), [9, 11, 6, 14]],
+                [(200, 300), [10, 7, 15]],
+                [(300, 0), [13, 8]],
+                [(300, 100), [12, 14, 9]],
+                [(300, 200), [13, 15, 10]],
+                [(300, 300), [14, 11]]
+            ]
+        }
+
+        # Path it should follow
+        expected = [0, 4, 5, 6, 7, 11, 15]
+        
+        # Path it actually follows
+        path = get_dijkstra_path()
+
+        # Check if the paths match
+        self.assertEqual(expected, path)
+        
+    def test_dijkstra_hits_required_nodes(self):
+        graph_index = 0
+        target_node = 4
+
+        global_game_data.current_graph_index = graph_index
+        global_game_data.target_node = {graph_index: target_node}
+
+        graph_data.graph_data = {
+            graph_index: [
+                [(0, 0), [1, 4]],
+                [(0, 100), [0, 2, 5]],
+                [(0, 200), [1, 3, 6]],
+                [(0, 300), [2, 7]],
+                [(100, 0), [5, 0, 8]],
+                [(100, 100), [4, 6, 1, 9]],
+                [(100, 200), [5, 7, 2, 10]],
+                [(100, 300), [6, 3, 11]],
+                [(200, 0), [9, 4, 12]],
+                [(200, 100), [8, 10, 5, 13]],
+                [(200, 200), [9, 11, 6, 14]],
+                [(200, 300), [10, 7, 15]],
+                [(300, 0), [13, 8]],
+                [(300, 100), [12, 14, 9]],
+                [(300, 200), [13, 15, 10]],
+                [(300, 300), [14, 11]]
+            ]
+        }
+
+        path = get_dijkstra_path()
+
+        self.assertEqual(path[0], 0, "The path does not start at the start node")
+        self.assertIn(target_node, path, "The path does not include the target node")
+        self.assertEqual(path[-1], 15, "The path does not end at the exit node")
 
 class TestPermutationsAndHamiltonian(unittest.TestCase):
     def test_sjt_3(self):

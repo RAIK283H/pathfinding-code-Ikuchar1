@@ -2,6 +2,7 @@ from collections import deque
 from numpy import random
 import graph_data
 import global_game_data
+import math
 
 
 
@@ -196,7 +197,65 @@ def bfs(graph, start, end):
     return []
 
     
-
-
+def calculate_dist(node1, node2):
+    x1, y1 = node1
+    x2, y2 = node2
+    return math.sqrt((x2-x1) ** 2 + (y2-y1) ** 2)
+    
+def dijkstra_helper(graph, start, end):
+    dist = {node: float('inf') for node in range(len(graph))}
+    parent = {node: None for node in range(len(graph))}
+    dist[start] = 0
+    unvisited = dist.copy()
+    
+    while unvisited:
+        curr_node = min(unvisited, key=unvisited.get)
+        curr_dist = unvisited[curr_node]
+        
+        del unvisited[curr_node]
+        
+        if curr_node == end:
+            break
+        
+        for neighbor in graph[curr_node][1]:
+            curr_coords = graph[curr_node][0]
+            neighbor_coords = graph[neighbor][0]
+            edge_dist = calculate_dist(curr_coords, neighbor_coords)
+        
+            new_dist = curr_dist + edge_dist
+            if new_dist < dist[neighbor]:
+                dist[neighbor] = new_dist
+                parent[neighbor] = curr_node
+                unvisited[neighbor] = new_dist
+            
+    path = []
+    current = end
+    while current is not None:
+        path.append(current)
+        current = parent[current]
+    path.reverse()
+    return path
+    
 def get_dijkstra_path():
-    return [1,2]
+    graph_index = global_game_data.current_graph_index
+    graph = graph_data.graph_data[graph_index]
+    
+    start_node = 0
+    target_node = global_game_data.target_node[graph_index]
+    exit_node = len(graph) - 1
+    
+    
+    #pre condition
+    assert (start_node in range(len(graph))) and (target_node in range(len(graph))) and (exit_node in range(len(graph))), "Missing vital node in graph"
+    
+    start_to_target_path = dijkstra_helper(graph, start_node, target_node)
+    target_to_exit_path = dijkstra_helper(graph, target_node, exit_node)
+    path = start_to_target_path + target_to_exit_path[1:]
+    
+    #post conditions
+    assert path[0] == start_node, "Path does not start at start_node"
+    assert path[-1] == exit_node, "Path does not end at exit_node"
+    for i in range(len(path) - 1):
+        assert path[i + 1] in graph[path[i]][1], "There are nodes that aren't neighbors"
+    
+    return path
