@@ -96,8 +96,8 @@ class Scoreboard:
             display_element.y = config_data.window_height - self.base_height_offset - self.stat_height * 6 - self.stat_height * (index * self.number_of_stats)
         
         winner_label = self.winning_player_display[0]
-        winner_label.x = config_data.window_width - self.stat_width
-        winner_label.y = config_data.window_height - self.stat_height * 24
+        winner_label.x = config_data.window_width - self.stat_width * 2.2
+        winner_label.y = config_data.window_height - self.stat_height * 26
         
 
 
