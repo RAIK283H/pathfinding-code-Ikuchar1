@@ -55,3 +55,23 @@ def make_path(parent_matrix, start, end):
     #reverse the path to get it from start to end
     path.reverse()
     return path
+
+def make_entire_path(parent_matrix, start, target, end):
+    """Makes path that goes from start to target to end"""
+    start_to_target = make_path(parent_matrix, start, target)
+    
+    target_to_end = make_path(parent_matrix, target, end)
+    
+    if target_to_end:
+        path = start_to_target + target_to_end[1:]
+    else:
+        path = start_to_target
+    
+    return path
+
+def get_floyd_warshall_path(graph, start, target, end):
+    weight_matrix = list_to_matrix(graph)
+    dist_matrix, parent_matrix = floyd_warshall(weight_matrix)
+    path = make_entire_path(parent_matrix, start, target, end)
+
+    return path

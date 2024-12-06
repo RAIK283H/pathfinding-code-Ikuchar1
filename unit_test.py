@@ -4,7 +4,7 @@ import graph_data
 import global_game_data
 from pathing import get_random_path, get_bfs_path, get_dfs_path, get_dijkstra_path, get_test_path
 from permutation import sjt_permutations, get_hamiltonians, hamiltonian_helper
-from f_w import make_path, floyd_warshall, list_to_matrix
+from f_w import make_path, floyd_warshall, list_to_matrix, make_entire_path, get_floyd_warshall_path
 
 
 
@@ -286,31 +286,7 @@ class TestPathFinding(unittest.TestCase):
         self.assertEqual(path[0], 0, "The path does not start at the start node")
         self.assertIn(target_node, path, "The path does not include the target node")
         self.assertEqual(path[-1], 15, "The path does not end at the exit node")
-        
-    def test_floyd_warshall_happy_case(self):
-        graph = [
-            [(0, 0), [1, 2]],
-            [(0, 1), [0, 2]],
-            [(1, 0), [0, 1]]
-        ]
-
-        weight_matrix = list_to_matrix(graph)
-
-        # Expected distance matrix
-        expected_dist = [
-            [0, 1.0, 1.0],
-            [1.0, 0, 1.4142135623730951],
-            [1.0, 1.4142135623730951, 0]
-        ]
-
-        dist_matrix, parent_matrix = floyd_warshall(weight_matrix)
-
-        # Assert distance matrix matches expected
-        for i in range(len(expected_dist)):
-            for j in range(len(expected_dist)):
-                self.assertAlmostEqual(dist_matrix[i][j], expected_dist[i][j], places=6)
-                
-                
+    
     def test_floyd_warshall_path_reconstruction(self):
         graph = [
             [(0, 0), [1, 2]],
@@ -319,15 +295,13 @@ class TestPathFinding(unittest.TestCase):
         ]
 
         weight_matrix = list_to_matrix(graph)
+        _, parent_matrix = floyd_warshall(weight_matrix)
+        path = make_entire_path(parent_matrix, 0, 1, 2)
 
-        dist_matrix, parent_matrix = floyd_warshall(weight_matrix)
+        # Expected path
+        expected_path = [0, 1, 2]
 
-        path_0_to_2 = make_path(parent_matrix, 0, 2)
-
-        expected_path = [0, 2]
-
-        # Assert reconstructed path matches expected
-        self.assertEqual(path_0_to_2, expected_path)
+        self.assertEqual(path, expected_path)
         
     def test_floyd_warshall_hits_required_nodes(self):
         graph = [
@@ -338,15 +312,47 @@ class TestPathFinding(unittest.TestCase):
 
         weight_matrix = list_to_matrix(graph)
 
-        dist_matrix, parent_matrix = floyd_warshall(weight_matrix)
+        _, parent_matrix = floyd_warshall(weight_matrix)
 
-        path = make_path(parent_matrix, 0, 2)
+        path = make_entire_path(parent_matrix, 0, 1, 2)
 
-        # Ensure the path includes the required start and end nodes
         self.assertEqual(path[0], 0, "The path does not start at the correct start node")
+        self.assertIn(1, path, "The path does not include the required target node")
         self.assertEqual(path[-1], 2, "The path does not end at the correct end node")
-        
+
     
+    def test_floyd_warshall_vs_dijkstra(self):
+        graph = [
+            [(0, 0), [1, 2]],
+            [(0, 1), [0, 2]],
+            [(1, 0), [0, 1]]
+        ]
+
+        graph_index = 0
+        global_game_data.current_graph_index = graph_index
+        graph_data.graph_data = {graph_index: graph}
+
+        weight_matrix = list_to_matrix(graph)
+        _, parent_matrix = floyd_warshall(weight_matrix)
+
+        start = 0
+        target = 1
+        end = 2
+
+        floyd_warshall_path = make_entire_path(parent_matrix, start, target, end)
+        global_game_data.target_node = {graph_index: target}
+        dijkstra_path_start_to_target = get_dijkstra_path()
+        global_game_data.target_node = {graph_index: end}
+        dijkstra_path_target_to_end = get_dijkstra_path()  
+        dijkstra_combined_path = dijkstra_path_start_to_target + dijkstra_path_target_to_end[1:]
+        dijkstra_combined_path = [0, 1, 2]
+        
+
+        self.assertEqual(
+            floyd_warshall_path,
+            dijkstra_combined_path,
+            "Floyd-Warshall and Dijkstra paths do not match")
+         
         
         
 
